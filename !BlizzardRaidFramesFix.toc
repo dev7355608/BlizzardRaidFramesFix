@@ -1,4 +1,5 @@
-﻿## Title: BlizzardRaidFramesFix
+﻿## Interface: 80205
+## Title: BlizzardRaidFramesFix
 ## Version: @project-version@
 ## Authors: dev7355608
 ## Notes: Prevents the Blizzard raid frames from breaking when players join or leave during combat
