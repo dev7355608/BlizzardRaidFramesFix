@@ -245,6 +245,7 @@ if CompactUnitFrame_UpdateInVehicle then
 
             local shouldTargetVehicle = UnitHasVehicleUI(frame.unit)
             local unitVehicleToken
+            local unitVehicleToken2
 
             if shouldTargetVehicle then
                 local raidID = UnitInRaid(frame.unit)
@@ -255,8 +256,9 @@ if CompactUnitFrame_UpdateInVehicle then
             end
 
             if shouldTargetVehicle then
-                local _, prefix, suffix = resolveUnitID(frame.unit)
-                unitVehicleToken = prefix .. "-pet" .. suffix
+                local prefix, id, suffix = string.match(frame.unit, "([^%d]+)([%d]*)(.*)")
+                unitVehicleToken = prefix .. "pet" .. id .. suffix
+                unitVehicleToken2 = resolveUnitID(unitVehicleToken)
 
                 if not UnitExists(unitVehicleToken) then
                     shouldTargetVehicle = false
@@ -267,7 +269,7 @@ if CompactUnitFrame_UpdateInVehicle then
                 if not frame.hasValidVehicleDisplay then
                     frame.hasValidVehicleDisplay = true
                     frame.displayedUnit = unitVehicleToken
-                    frame:SetAttribute("unit", frame.displayedUnit)
+                    frame:SetAttribute("unit", unitVehicleToken2)
                     CompactUnitFrame_UpdateUnitEvents(frame)
                 end
             else
@@ -544,11 +546,14 @@ do
                                 frame.healthBar.healthBackground = nil
                             end
 
-                            if unit and (currentUnit == "none" or currentUnit ~= frame:GetAttribute("unit")) then
-                                frame.displayedUnit = frame:GetAttribute("unit")
-                                frame.displayedUnit = unitTarget == frame.displayedUnit and unit or frame.displayedUnit
-                                frame.hasValidVehicleDisplay = frame.unit ~= frame.displayedUnit
+                            if unit then
+                                local displayUnitTarget = frame:GetAttribute("unit")
+                                frame.displayedUnit = unitTarget == displayUnitTarget and unit or unitIDs[displayUnitTarget]
                             end
+
+                            frame.hasValidVehicleDisplay = frame.unit ~= frame.displayedUnit
+
+                            assert(frame.unit and frame.displayedUnit)
 
                             if unit then
                                 CompactUnitFrame_RegisterEvents(frame)
