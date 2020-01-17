@@ -229,59 +229,24 @@ local function CompactUnitFrame_UpdateAllSecure(frame)
     end
 end
 
-if CompactUnitFrame_UpdateInVehicle then
-    hooksecurefunc(
-        "CompactUnitFrame_UpdateInVehicle",
-        function(frame)
-            if not UnitHasVehicleUI then
-                return
-            end
+if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
+    if CompactUnitFrame_UpdateInVehicle then
+        hooksecurefunc(
+            "CompactUnitFrame_UpdateInVehicle",
+            function(frame)
+                if not frames[frame] then
+                    return
+                end
 
-            if frame:IsForbidden() or not frame:GetName() or not frame:GetName():find("^Compact") then
-                return
-            end
+                local unit = frame:GetAttribute("unit")
+                local unitTarget = unit and resolveUnitID(unit)
 
-            assert(not InCombatLockdown())
-
-            local shouldTargetVehicle = UnitHasVehicleUI(frame.unit)
-            local unitVehicleToken
-            local unitVehicleToken2
-
-            if shouldTargetVehicle then
-                local raidID = UnitInRaid(frame.unit)
-
-                if raidID and not UnitTargetsVehicleInRaidUI(frame.unit) then
-                    shouldTargetVehicle = false
+                if unitTarget then
+                    frame:SetAttribute("unit", unitTarget)
                 end
             end
-
-            if shouldTargetVehicle then
-                local prefix, id, suffix = string.match(frame.unit, "([^%d]+)([%d]*)(.*)")
-                unitVehicleToken = prefix .. "pet" .. id .. suffix
-                unitVehicleToken2 = resolveUnitID(unitVehicleToken)
-
-                if not UnitExists(unitVehicleToken) then
-                    shouldTargetVehicle = false
-                end
-            end
-
-            if shouldTargetVehicle then
-                if not frame.hasValidVehicleDisplay then
-                    frame.hasValidVehicleDisplay = true
-                    frame.displayedUnit = unitVehicleToken
-                    frame:SetAttribute("unit", unitVehicleToken2)
-                    CompactUnitFrame_UpdateUnitEvents(frame)
-                end
-            else
-                if frame.hasValidVehicleDisplay then
-                    frame.hasValidVehicleDisplay = false
-                    frame.displayedUnit = frame.unit
-                    frame:SetAttribute("unit", frame.displayedUnit)
-                    CompactUnitFrame_UpdateUnitEvents(frame)
-                end
-            end
-        end
-    )
+        )
+    end
 end
 
 hooksecurefunc(
