@@ -511,6 +511,7 @@ do
                             unitIDs[unitName] = unit
                             unitIDs[unitName .. "-target"] = unit .. "target"
                             unitIDs[unitName .. "-target-target"] = unit .. "targettarget"
+                            unitIDs[unitName .. "-pet"] = petIDs[unit]
                             unitIDs[unitName .. "-pet-target"] = petIDs[unit] .. "target"
                             unitIDs[unitName .. "-pet-target-target"] = petIDs[unit] .. "targettarget"
                         end
