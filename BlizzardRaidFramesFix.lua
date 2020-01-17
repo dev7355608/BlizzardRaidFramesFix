@@ -70,6 +70,7 @@ end
 local frames = {}
 local sizeChanged = true
 local groupRosterUpdate = true
+local applyProfile = nil
 
 do
     local _CompactRaidFrameContainer_ReadyToUpdate = CompactRaidFrameContainer_ReadyToUpdate
@@ -99,6 +100,18 @@ do
     function CompactRaidGroup_UpdateUnits(self)
         if not InCombatLockdown() then
             _CompactRaidGroup_UpdateUnits(self)
+        end
+    end
+end
+
+do
+    local _CompactUnitFrameProfiles_ApplyProfile = CompactUnitFrameProfiles_ApplyProfile
+
+    function CompactUnitFrameProfiles_ApplyProfile(profile)
+        if not InCombatLockdown() then
+            return _CompactUnitFrameProfiles_ApplyProfile(profile)
+        else
+            applyProfile = profile
         end
     end
 end
@@ -449,12 +462,15 @@ do
         "OnEvent",
         function(_, event)
             if event == "PLAYER_REGEN_ENABLED" then
-                if groupRosterUpdate then
+                if applyProfile then
+                    CompactUnitFrameProfiles_ApplyProfile(applyProfile)
+                elseif groupRosterUpdate then
                     CompactRaidFrameContainer_TryUpdate(CompactRaidFrameContainer)
                 elseif sizeChanged then
                     CompactRaidFrameContainer_OnSizeChanged(CompactRaidFrameContainer)
                 end
 
+                applyProfile = nil
                 groupRosterUpdate = false
                 sizeChanged = false
             elseif event == "GROUP_ROSTER_UPDATE" then
