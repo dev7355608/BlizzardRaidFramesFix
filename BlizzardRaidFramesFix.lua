@@ -170,6 +170,10 @@ hooksecurefunc(
                 CompactUnitFrame_UpdateWidgetSet(frame)
             end
         end
+
+        if not frame.unitExists then
+            frame.background:SetAlpha(0)
+        end
     end
 )
 
@@ -187,12 +191,14 @@ local function CompactUnitFrame_UpdateAllSecure(frame)
             end
 
             frame.unitExists = true
+            frame.background:SetAlpha(1)
         else
             if CompactUnitFrame_ClearWidgetSet then
                 CompactUnitFrame_ClearWidgetSet(frame)
             end
 
             frame.unitExists = false
+            frame.background:SetAlpha(0)
         end
 
         for _, hookfunc in ipairs(hooks_CompactUnitFrame_UpdateVisible) do
@@ -241,6 +247,10 @@ local function CompactUnitFrame_UpdateAllSecure(frame)
         end
     end
 
+    if not frame.unitExists then
+        frame.background:SetAlpha(0)
+    end
+
     for _, hookfunc in ipairs(hooks_CompactUnitFrame_UpdateAll) do
         hookfunc(frame)
     end
@@ -277,6 +287,12 @@ hooksecurefunc(
             end
         end
 
+        if frame.unitExists then
+            frame.background:SetAlpha(1)
+        else
+            frame.background:SetAlpha(0)
+        end
+
         if resolveUnitID(frame.unit) then
             frame:Show()
         end
@@ -292,23 +308,8 @@ hooksecurefunc(
             end
         end
 
-        if frame.unit == "none" then
+        if not frame.unitExists then
             frame.name:Hide()
-        end
-    end
-)
-
-hooksecurefunc(
-    "CompactUnitFrame_UpdateInRange",
-    function(frame)
-        if frames[frame] == nil then
-            if frame:IsForbidden() or not frame:GetName() or not frame:GetName():find("^Compact") then
-                return
-            end
-        end
-
-        if frame.unit == "none" then
-            frame:SetAlpha(0.55)
         end
     end
 )
@@ -326,7 +327,7 @@ hooksecurefunc(
             return
         end
 
-        if not UnitExists(frame.unit) then
+        if not frame.unitExists then
             frame.statusText:Hide()
         end
     end
