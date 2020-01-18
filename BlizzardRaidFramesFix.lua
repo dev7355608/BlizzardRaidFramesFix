@@ -447,6 +447,16 @@ hooksecurefunc(
 )
 
 hooksecurefunc(
+    "CompactRaidGroup_GenerateForGroup",
+    function(groupIndex)
+        assert(not InCombatLockdown())
+
+        local frame = _G["CompactRaidGroup" .. groupIndex]
+        CompactRaidGroup_UpdateUnits(frame)
+    end
+)
+
+hooksecurefunc(
     "CompactPartyFrame_Generate",
     function()
         assert(not InCombatLockdown())
