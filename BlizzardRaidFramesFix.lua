@@ -348,10 +348,6 @@ hooksecurefunc(
 
         if unitTarget then
             if frame:GetAttribute("unit") == unit then
-                frame:SetAttribute("unit", unitTarget)
-
-                frames[frame] = unitTarget
-
                 if not frame.onUpdateFrame then
                     frame.onUpdateFrame = CreateFrame("Frame")
 
@@ -406,10 +402,14 @@ hooksecurefunc(
                 end
 
                 CompactUnitFrame_RegisterEvents(frame)
+            end
 
-                if not frame.name:GetText() then
-                    CompactUnitFrame_UpdateAll(frame)
-                end
+            frame:SetAttribute("unit", unitTarget)
+
+            frames[frame] = unitTarget
+
+            if not frame.name:GetText() then
+                CompactUnitFrame_UpdateAll(frame)
             end
         else
             assert(not UnitExists(unit))
@@ -439,6 +439,8 @@ hooksecurefunc(
                 if frame.castBar then
                     CastingBarFrame_SetUnit(frame.castBar, nil, nil, nil)
                 end
+
+                CompactUnitFrame_UpdateAll(frame)
             end
 
             frames[frame] = false
