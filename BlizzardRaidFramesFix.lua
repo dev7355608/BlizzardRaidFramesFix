@@ -70,8 +70,8 @@ end
 local frames = {}
 setmetatable(frames, {__mode = "k"})
 
-local sizeChanged = true
-local groupRosterUpdate = true
+local sizeChanged = false
+local groupRosterUpdate = false
 local applyProfile = nil
 
 do
