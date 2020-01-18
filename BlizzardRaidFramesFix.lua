@@ -511,6 +511,7 @@ do
     local eventFrame = CreateFrame("Frame")
     eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
     eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+    eventFrame:RegisterEvent("UNIT_PET")
     eventFrame:SetScript(
         "OnEvent",
         function(_, event)
@@ -526,7 +527,7 @@ do
                 applyProfile = nil
                 groupRosterUpdate = false
                 sizeChanged = false
-            elseif event == "GROUP_ROSTER_UPDATE" then
+            elseif event == "GROUP_ROSTER_UPDATE" or event == "UNIT_PET" then
                 if InCombatLockdown() then
                     local unitIDs = {}
                     local group
