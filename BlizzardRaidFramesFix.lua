@@ -130,7 +130,7 @@ hooksecurefunc(
             end
         end
 
-        if resolveUnitID(frame.displayedUnit) and not UnitExists(frame.displayedUnit) then
+        if frame:IsShown() and not UnitExists(frame.displayedUnit) then
             CompactUnitFrame_UpdateMaxHealth(frame)
             CompactUnitFrame_UpdateHealth(frame)
             CompactUnitFrame_UpdateHealthColor(frame)
@@ -206,7 +206,7 @@ local function CompactUnitFrame_UpdateAllSecure(frame)
         end
     end
 
-    if frame.displayedUnit then
+    if frame:IsShown() then
         CompactUnitFrame_UpdateMaxHealth(frame)
         CompactUnitFrame_UpdateHealth(frame)
         CompactUnitFrame_UpdateHealthColor(frame)
@@ -410,6 +410,20 @@ hooksecurefunc(
                 CompactUnitFrame_UpdateAll(frame)
             end
         else
+            assert(not UnitExists(unit))
+
+            frame.unit = nil
+            frame.displayedUnit = nil
+            frame.inVehicle = false
+            frame.readyCheckStatus = nil
+            frame.readyCheckDecay = nil
+            frame.isTanking = nil
+            frame.hideCastbar = frame.optionTable.hideCastbar
+            frame.healthBar.healthBackground = nil
+            frame.hasValidVehicleDisplay = false
+
+            frame:SetAttribute("unit", nil)
+
             if frame.onUpdateFrame then
                 frame.onUpdateFrame.doUpdate = nil
                 frame.onUpdateFrame:UnregisterAllEvents()
@@ -418,6 +432,10 @@ hooksecurefunc(
             end
 
             CompactUnitFrame_UnregisterEvents(frame)
+
+            if frame.castBar then
+                CastingBarFrame_SetUnit(frame.castBar, nil, nil, nil)
+            end
 
             frames[frame] = false
         end
