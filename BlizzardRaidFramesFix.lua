@@ -347,94 +347,98 @@ hooksecurefunc(
         local unitTarget = resolveUnitID(unit)
 
         if unitTarget then
-            frame:SetAttribute("unit", unitTarget)
-            assert(frame:GetAttribute("unit") == unitTarget)
-            frames[frame] = unitTarget
+            if frame:GetAttribute("unit") == unit then
+                frame:SetAttribute("unit", unitTarget)
 
-            if not frame.onUpdateFrame then
-                frame.onUpdateFrame = CreateFrame("Frame")
+                frames[frame] = unitTarget
 
-                frame.onUpdateFrame.func = function(updateFrame, elapsed)
-                    if frame.displayedUnit then
-                        CompactUnitFrame_UpdateAllSecure(frame)
+                if not frame.onUpdateFrame then
+                    frame.onUpdateFrame = CreateFrame("Frame")
+
+                    frame.onUpdateFrame.func = function(updateFrame, elapsed)
+                        if frame.displayedUnit then
+                            CompactUnitFrame_UpdateAllSecure(frame)
+                        end
+                    end
+
+                    frame.onUpdateFrame.func2 = function(updateFrame, event, arg1)
+                        if event == "PLAYER_ENTERING_WORLD" then
+                            CompactUnitFrame_UpdateAllSecure(frame)
+                        elseif event == "PLAYER_REGEN_ENABLED" then
+                            CompactUnitFrame_UpdateAllSecure(frame)
+                        else
+                            local unitMatches = arg1 == frame.unit or arg1 == frame.displayedUnit
+
+                            if unitMatches then
+                                if event == "UNIT_PET" then
+                                    CompactUnitFrame_UpdateAllSecure(frame)
+                                end
+                            end
+
+                            if unitMatches or arg1 == "player" then
+                                if event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" then
+                                    CompactUnitFrame_UpdateAllSecure(frame)
+                                end
+                            end
+                        end
                     end
                 end
 
-                frame.onUpdateFrame.func2 = function(updateFrame, event, arg1)
-                    if event == "PLAYER_ENTERING_WORLD" then
-                        CompactUnitFrame_UpdateAllSecure(frame)
-                    elseif event == "PLAYER_REGEN_ENABLED" then
-                        CompactUnitFrame_UpdateAllSecure(frame)
-                    else
-                        local unitMatches = arg1 == frame.unit or arg1 == frame.displayedUnit
-
-                        if unitMatches then
-                            if event == "UNIT_PET" then
-                                CompactUnitFrame_UpdateAllSecure(frame)
-                            end
-                        end
-
-                        if unitMatches or arg1 == "player" then
-                            if event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" then
-                                CompactUnitFrame_UpdateAllSecure(frame)
-                            end
-                        end
-                    end
+                if frame.onUpdateFrame.doUpdate then
+                    frame.onUpdateFrame:SetScript("OnUpdate", frame.onUpdateFrame.func)
                 end
-            end
 
-            if frame.onUpdateFrame.doUpdate then
-                frame.onUpdateFrame:SetScript("OnUpdate", frame.onUpdateFrame.func)
-            end
+                frame.onUpdateFrame:SetScript("OnEvent", frame.onUpdateFrame.func2)
 
-            frame.onUpdateFrame:SetScript("OnEvent", frame.onUpdateFrame.func2)
+                frame.onUpdateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 
-            frame.onUpdateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+                frame:UnregisterEvent("PLAYER_ENTERING_WORLD")
+                frame.onUpdateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 
-            frame:UnregisterEvent("PLAYER_ENTERING_WORLD")
-            frame.onUpdateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+                frame:UnregisterEvent("UNIT_PET")
+                frame.onUpdateFrame:RegisterEvent("UNIT_PET")
 
-            frame:UnregisterEvent("UNIT_PET")
-            frame.onUpdateFrame:RegisterEvent("UNIT_PET")
+                if UnitHasVehicleUI then
+                    frame:UnregisterEvent("UNIT_ENTERED_VEHICLE")
+                    frame:UnregisterEvent("UNIT_EXITED_VEHICLE")
+                    frame.onUpdateFrame:RegisterEvent("UNIT_ENTERED_VEHICLE")
+                    frame.onUpdateFrame:RegisterEvent("UNIT_EXITED_VEHICLE")
+                end
 
-            if UnitHasVehicleUI then
-                frame:UnregisterEvent("UNIT_ENTERED_VEHICLE")
-                frame:UnregisterEvent("UNIT_EXITED_VEHICLE")
-                frame.onUpdateFrame:RegisterEvent("UNIT_ENTERED_VEHICLE")
-                frame.onUpdateFrame:RegisterEvent("UNIT_EXITED_VEHICLE")
-            end
+                CompactUnitFrame_RegisterEvents(frame)
 
-            CompactUnitFrame_RegisterEvents(frame)
-
-            if not frame.name:GetText() then
-                CompactUnitFrame_UpdateAll(frame)
+                if not frame.name:GetText() then
+                    CompactUnitFrame_UpdateAll(frame)
+                end
             end
         else
             assert(not UnitExists(unit))
 
-            frame.unit = nil
-            frame.displayedUnit = nil
-            frame.inVehicle = false
-            frame.readyCheckStatus = nil
-            frame.readyCheckDecay = nil
-            frame.isTanking = nil
-            frame.hideCastbar = frame.optionTable.hideCastbar
-            frame.healthBar.healthBackground = nil
-            frame.hasValidVehicleDisplay = false
+            if unit then
+                frame.unit = nil
+                frame.displayedUnit = nil
+                frame.inVehicle = false
+                frame.readyCheckStatus = nil
+                frame.readyCheckDecay = nil
+                frame.isTanking = nil
+                frame.hideCastbar = frame.optionTable.hideCastbar
+                frame.healthBar.healthBackground = nil
+                frame.hasValidVehicleDisplay = false
 
-            frame:SetAttribute("unit", nil)
+                frame:SetAttribute("unit", nil)
 
-            if frame.onUpdateFrame then
-                frame.onUpdateFrame.doUpdate = nil
-                frame.onUpdateFrame:UnregisterAllEvents()
-                frame.onUpdateFrame:SetScript("OnEvent", nil)
-                frame.onUpdateFrame:SetScript("OnUpdate", nil)
-            end
+                if frame.onUpdateFrame then
+                    frame.onUpdateFrame.doUpdate = nil
+                    frame.onUpdateFrame:UnregisterAllEvents()
+                    frame.onUpdateFrame:SetScript("OnEvent", nil)
+                    frame.onUpdateFrame:SetScript("OnUpdate", nil)
+                end
 
-            CompactUnitFrame_UnregisterEvents(frame)
+                CompactUnitFrame_UnregisterEvents(frame)
 
-            if frame.castBar then
-                CastingBarFrame_SetUnit(frame.castBar, nil, nil, nil)
+                if frame.castBar then
+                    CastingBarFrame_SetUnit(frame.castBar, nil, nil, nil)
+                end
             end
 
             frames[frame] = false
