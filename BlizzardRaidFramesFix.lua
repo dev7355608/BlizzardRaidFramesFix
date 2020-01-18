@@ -451,8 +451,16 @@ hooksecurefunc(
     function()
         assert(not InCombatLockdown())
 
-        CompactPartyFrame_OnLoad(CompactPartyFrame)
-        CompactRaidGroup_UpdateBorder(CompactPartyFrame)
+        local name = CompactPartyFrame:GetName()
+        local unitFrame = _G[name .. "Member1"]
+        CompactUnitFrame_SetUnit(unitFrame, "player")
+
+        for i = 1, MEMBERS_PER_RAID_GROUP do
+            if i > 1 then
+                local unitFrame = _G[name .. "Member" .. i]
+                CompactUnitFrame_SetUnit(unitFrame, "party" .. (i - 1))
+            end
+        end
     end
 )
 
