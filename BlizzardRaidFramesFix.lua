@@ -59,7 +59,7 @@ do
 
         local prefix, suffix = unitPrefix[unit], unitSuffix[unit]
 
-        if not prefix or not UnitExists(prefix) then
+        if not UnitExists(prefix) then
             return nil, prefix, suffix
         end
 
@@ -149,9 +149,7 @@ hooksecurefunc(
     "CompactUnitFrame_UpdateAll",
     function(frame)
         if frames[frame] == nil then
-            if frame:IsForbidden() or not frame:GetName() or not frame:GetName():find("^Compact") then
-                return
-            end
+            return
         end
 
         if frame:IsShown() and not UnitExists(frame.displayedUnit) then
@@ -286,13 +284,11 @@ if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
             "CompactUnitFrame_UpdateInVehicle",
             function(frame)
                 if frames[frame] == nil then
-                    if frame:IsForbidden() or not frame:GetName() or not frame:GetName():find("^Compact") then
-                        return
-                    end
+                    return
                 end
 
                 local unit = frame:GetAttribute("unit")
-                local unitTarget = unit and resolveUnitID(unit)
+                local unitTarget = resolveUnitID(unit)
 
                 if unitTarget then
                     frame:SetAttribute("unit", unitTarget)
@@ -306,9 +302,7 @@ hooksecurefunc(
     "CompactUnitFrame_UpdateVisible",
     function(frame)
         if frames[frame] == nil then
-            if frame:IsForbidden() or not frame:GetName() or not frame:GetName():find("^Compact") then
-                return
-            end
+            return
         end
 
         if frame.unitExists then
@@ -327,9 +321,7 @@ hooksecurefunc(
     "CompactUnitFrame_UpdateName",
     function(frame)
         if frames[frame] == nil then
-            if frame:IsForbidden() or not frame:GetName() or not frame:GetName():find("^Compact") then
-                return
-            end
+            return
         end
 
         if not frame.unitExists then
@@ -342,9 +334,7 @@ hooksecurefunc(
     "CompactUnitFrame_UpdateStatusText",
     function(frame)
         if frames[frame] == nil then
-            if frame:IsForbidden() or not frame:GetName() or not frame:GetName():find("^Compact") then
-                return
-            end
+            return
         end
 
         if not frame.statusText then
@@ -367,6 +357,8 @@ hooksecurefunc(
         end
 
         assert(not InCombatLockdown())
+
+        local updateAll = false
 
         local unitTarget = resolveUnitID(unit)
 
@@ -427,12 +419,10 @@ hooksecurefunc(
 
                 CompactUnitFrame_RegisterEvents(frame)
             else
-                CompactUnitFrame_UpdateAll(frame)
+                updateAll = true
             end
 
             frame:SetAttribute("unit", unitTarget)
-
-            frames[frame] = unitTarget
         else
             assert(not UnitExists(unit))
 
@@ -462,10 +452,18 @@ hooksecurefunc(
                     CastingBarFrame_SetUnit(frame.castBar, nil, nil, nil)
                 end
 
-                CompactUnitFrame_UpdateAll(frame)
+                updateAll = true
             end
+        end
 
-            frames[frame] = false
+        if frames[frame] == nil then
+            updateAll = true
+        end
+
+        frames[frame] = unitTarget or false
+
+        if updateAll then
+            CompactUnitFrame_UpdateAll(frame)
         end
     end
 )
