@@ -97,11 +97,33 @@ do
 end
 
 do
-    local _CompactRaidGroup_UpdateUnits = CompactRaidGroup_UpdateUnits
-
-    function CompactRaidGroup_UpdateUnits(self)
+    function CompactRaidGroup_UpdateUnits(frame)
         if not InCombatLockdown() then
-            _CompactRaidGroup_UpdateUnits(self)
+            local groupIndex = frame:GetID()
+            local frameIndex = 1
+
+            if IsInRaid() then
+                for i = 1, GetNumGroupMembers() do
+                    local name, rank, subgroup = GetRaidRosterInfo(i)
+
+                    if subgroup == groupIndex and frameIndex <= MEMBERS_PER_RAID_GROUP then
+                        local unit = "raid" .. i
+                        local unitFrame = _G[frame:GetName() .. "Member" .. frameIndex]
+
+                        assert(UnitIsUnit(name, unit))
+
+                        CompactUnitFrame_SetUnit(unitFrame, nil)
+                        CompactUnitFrame_SetUnit(unitFrame, unit)
+
+                        frameIndex = frameIndex + 1
+                    end
+                end
+
+                for i = frameIndex, MEMBERS_PER_RAID_GROUP do
+                    local unitFrame = _G[frame:GetName() .. "Member" .. i]
+                    CompactUnitFrame_SetUnit(unitFrame, nil)
+                end
+            end
         end
     end
 end
@@ -402,15 +424,13 @@ hooksecurefunc(
                 end
 
                 CompactUnitFrame_RegisterEvents(frame)
+            else
+                CompactUnitFrame_UpdateAll(frame)
             end
 
             frame:SetAttribute("unit", unitTarget)
 
             frames[frame] = unitTarget
-
-            if not frame.name:GetText() then
-                CompactUnitFrame_UpdateAll(frame)
-            end
         else
             assert(not UnitExists(unit))
 
@@ -465,12 +485,20 @@ hooksecurefunc(
 
         local name = CompactPartyFrame:GetName()
         local unitFrame = _G[name .. "Member1"]
+
+        CompactUnitFrame_SetUnit(unitFrame, nil)
         CompactUnitFrame_SetUnit(unitFrame, "player")
 
         for i = 1, MEMBERS_PER_RAID_GROUP do
             if i > 1 then
+                local unit = "party" .. (i - 1)
                 local unitFrame = _G[name .. "Member" .. i]
-                CompactUnitFrame_SetUnit(unitFrame, "party" .. (i - 1))
+
+                CompactUnitFrame_SetUnit(unitFrame, nil)
+
+                if UnitExists(unit) then
+                    CompactUnitFrame_SetUnit(unitFrame, unit)
+                end
             end
         end
     end
