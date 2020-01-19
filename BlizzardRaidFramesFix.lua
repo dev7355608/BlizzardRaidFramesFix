@@ -103,19 +103,21 @@ do
             local frameIndex = 1
 
             if IsInRaid() then
-                for i = 1, GetNumGroupMembers() do
-                    local name, rank, subgroup = GetRaidRosterInfo(i)
+                for i = 1, MAX_RAID_MEMBERS do
+                    local unit = "raid" .. i
+                    local raidID = UnitInRaid(unit)
 
-                    if subgroup == groupIndex and frameIndex <= MEMBERS_PER_RAID_GROUP then
-                        local unit = "raid" .. i
-                        local unitFrame = _G[frame:GetName() .. "Member" .. frameIndex]
+                    if raidID then
+                        local name, rank, subgroup = GetRaidRosterInfo(raidID)
 
-                        assert(UnitIsUnit(name, unit))
+                        if subgroup == groupIndex and frameIndex <= MEMBERS_PER_RAID_GROUP then
+                            local unitFrame = _G[frame:GetName() .. "Member" .. frameIndex]
 
-                        CompactUnitFrame_SetUnit(unitFrame, nil)
-                        CompactUnitFrame_SetUnit(unitFrame, unit)
+                            CompactUnitFrame_SetUnit(unitFrame, nil)
+                            CompactUnitFrame_SetUnit(unitFrame, unit)
 
-                        frameIndex = frameIndex + 1
+                            frameIndex = frameIndex + 1
+                        end
                     end
                 end
 
