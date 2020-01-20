@@ -347,6 +347,29 @@ hooksecurefunc(
     end
 )
 
+if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+    hooksecurefunc(
+        "CompactUnitFrame_UpdateRoleIcon",
+        function(frame)
+            if frames[frame] == nil then
+                return
+            end
+
+            if not frame.roleIcon then
+                return
+            end
+
+            local raidID = UnitInRaid(frame.unit)
+
+            if not (frame.optionTable.displayRaidRoleIcon and raidID and select(10, GetRaidRosterInfo(raidID))) then
+                local size = frame.roleIcon:GetHeight()
+                frame.roleIcon:Hide()
+                frame.roleIcon:SetSize(1, size)
+            end
+        end
+    )
+end
+
 hooksecurefunc(
     "CompactUnitFrame_SetUnit",
     function(frame, unit)
