@@ -148,7 +148,7 @@ local hooks_CompactUnitFrame_SetUnit = {}
 local hooks_CastingBarFrame_SetUnit = {}
 
 local function CompactUnitFrame_Hide(frame)
-    frame.background:SetAlpha(0)
+    frame.background:Hide()
 
     frame.healthBar:SetValue(0)
 
@@ -278,14 +278,14 @@ local function CompactUnitFrame_UpdateAllSecure(frame)
             end
 
             frame.unitExists = true
-            frame.background:SetAlpha(1)
+            frame.background:Show()
         else
             if CompactUnitFrame_ClearWidgetSet then
                 CompactUnitFrame_ClearWidgetSet(frame)
             end
 
             frame.unitExists = false
-            frame.background:SetAlpha(0)
+            frame.background:Hide()
         end
 
         for _, hookfunc in ipairs(hooks_CompactUnitFrame_UpdateVisible) do
@@ -369,9 +369,9 @@ hooksecurefunc(
         end
 
         if frame.unitExists then
-            frame.background:SetAlpha(1)
+            frame.background:Show()
         else
-            frame.background:SetAlpha(0)
+            frame.background:Hide()
         end
 
         if resolveUnitID(frame.unit) then
