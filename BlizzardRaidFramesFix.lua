@@ -144,6 +144,8 @@ end
 
 local hooks_CompactUnitFrame_UpdateAll = {}
 local hooks_CompactUnitFrame_UpdateVisible = {}
+local hooks_CompactUnitFrame_SetUnit = {}
+local hooks_CastingBarFrame_SetUnit = {}
 
 local function CompactUnitFrame_Hide(frame)
     frame.background:SetAlpha(0)
@@ -674,13 +676,6 @@ do
                                     displayedUnit = unit
                                 end
 
-                                do
-                                    frame.unit = nil
-                                    frame.displayedUnit = nil
-
-                                    CompactUnitFrame_UpdateUnitEvents(frame)
-                                end
-
                                 frame.unit = unit
                                 frame.displayedUnit = displayedUnit
 
@@ -749,12 +744,13 @@ do
                                     else
                                         if frame.castBar then
                                             frame.castBar.unit = unit
-                                            frame.castBar:UnregisterEvent("UNIT_SPELLCAST_START")
-                                            frame.castBar:UnregisterEvent("UNIT_SPELLCAST_STOP")
-                                            frame.castBar:UnregisterEvent("UNIT_SPELLCAST_FAILED")
                                             frame.castBar:RegisterUnitEvent("UNIT_SPELLCAST_START", unit)
                                             frame.castBar:RegisterUnitEvent("UNIT_SPELLCAST_STOP", unit)
                                             frame.castBar:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", unit)
+
+                                            for _, hookfunc in ipairs(hooks_CastingBarFrame_SetUnit) do
+                                                hookfunc(frame, unit, frame.castBar.showTradeSkills, frame.castBar.showShield)
+                                            end
                                         end
                                     end
                                 else
@@ -770,6 +766,10 @@ do
                                 end
 
                                 CompactUnitFrame_UpdateAllSecure(frame)
+
+                                for _, hookfunc in ipairs(hooks_CompactUnitFrame_SetUnit) do
+                                    hookfunc(frame, unit)
+                                end
                             end
                         end
                     end
@@ -795,6 +795,10 @@ hooksecurefunc(
                 tinsert(hooks_CompactUnitFrame_UpdateAll, hookfunc)
             elseif functionName == "CompactUnitFrame_UpdateVisible" then
                 tinsert(hooks_CompactUnitFrame_UpdateVisible, hookfunc)
+            elseif functionName == "CompactUnitFrame_SetUnit" then
+                tinsert(hooks_CompactUnitFrame_SetUnit, hookfunc)
+            elseif functionName == "CastingBarFrame_SetUnit" then
+                tinsert(hooks_CastingBarFrame_SetUnit, hookfunc)
             end
         end
     end
