@@ -378,23 +378,6 @@ hooksecurefunc(
     end
 )
 
-hooksecurefunc(
-    "CompactUnitFrame_UpdateStatusText",
-    function(frame)
-        if frames[frame] == nil then
-            return
-        end
-
-        if not frame.statusText then
-            return
-        end
-
-        if not frame.unitExists then
-            frame.statusText:Hide()
-        end
-    end
-)
-
 if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
     hooksecurefunc(
         "CompactUnitFrame_UpdateRoleIcon",
