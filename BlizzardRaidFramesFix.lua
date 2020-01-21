@@ -379,19 +379,6 @@ hooksecurefunc(
 )
 
 hooksecurefunc(
-    "CompactUnitFrame_UpdateName",
-    function(frame)
-        if frames[frame] == nil then
-            return
-        end
-
-        if not frame.unitExists then
-            frame.name:Hide()
-        end
-    end
-)
-
-hooksecurefunc(
     "CompactUnitFrame_UpdateStatusText",
     function(frame)
         if frames[frame] == nil then
