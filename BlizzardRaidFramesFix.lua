@@ -472,6 +472,8 @@ hooksecurefunc(
                 end
 
                 CompactUnitFrame_RegisterEvents(frame)
+
+                frame:SetScript("OnEnter", UnitFrame_OnEnter)
             else
                 updateAll = true
             end
@@ -508,6 +510,8 @@ hooksecurefunc(
 
                 updateAll = true
             end
+
+            frame:SetScript("OnEnter", nil)
         end
 
         if frames[frame] == nil then
@@ -663,11 +667,11 @@ do
                             local unit = unitIDs[unitTarget]
                             local currentUnit = frame.unit
 
-                            if currentUnit ~= (unit or "none") then
+                            if currentUnit ~= unit then
                                 local displayedUnit = frame.displayedUnit
 
                                 if not unit or currentUnit == displayedUnit then
-                                    displayedUnit = unit or "none"
+                                    displayedUnit = unit
                                 end
 
                                 do
@@ -677,10 +681,10 @@ do
                                     CompactUnitFrame_UpdateUnitEvents(frame)
                                 end
 
-                                frame.unit = unit or "none"
+                                frame.unit = unit
                                 frame.displayedUnit = displayedUnit
 
-                                if not unit or currentUnit == "none" then
+                                if not unit or not currentUnit then
                                     frame.inVehicle = false
                                     frame.readyCheckStatus = nil
                                     frame.readyCheckDecay = nil
@@ -696,8 +700,6 @@ do
 
                                 frame.hasValidVehicleDisplay = frame.unit ~= frame.displayedUnit
 
-                                assert(frame.unit and frame.displayedUnit)
-
                                 if unit then
                                     CompactUnitFrame_RegisterEvents(frame)
                                 else
@@ -710,7 +712,7 @@ do
                                         frame.onUpdateFrame:SetScript("OnEvent", nil)
                                         frame.onUpdateFrame:SetScript("OnUpdate", nil)
                                     end
-                                elseif currentUnit == "none" then
+                                elseif not currentUnit then
                                     if frame.onUpdateFrame then
                                         if frame.onUpdateFrame.doUpdate then
                                             frame.onUpdateFrame:SetScript("OnUpdate", frame.onUpdateFrame.func)
@@ -740,7 +742,7 @@ do
                                 end
 
                                 if unit and not frame.hideCastbar then
-                                    if currentUnit == "none" then
+                                    if not currentUnit then
                                         if frame.castBar then
                                             CastingBarFrame_SetUnit(frame.castBar, unit, false, true)
                                         end
@@ -759,6 +761,12 @@ do
                                     if frame.castBar then
                                         CastingBarFrame_SetUnit(frame.castBar, nil, nil, nil)
                                     end
+                                end
+
+                                if unit then
+                                    frame:SetScript("OnEnter", UnitFrame_OnEnter)
+                                else
+                                    frame:SetScript("OnEnter", nil)
                                 end
 
                                 CompactUnitFrame_UpdateAllSecure(frame)
