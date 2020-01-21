@@ -252,19 +252,6 @@ local function CompactUnitFrame_Hide(frame)
     end
 end
 
-hooksecurefunc(
-    "CompactUnitFrame_UpdateAll",
-    function(frame)
-        if frames[frame] == nil then
-            return
-        end
-
-        if not UnitExists(frame.displayedUnit) then
-            CompactUnitFrame_Hide(frame)
-        end
-    end
-)
-
 local function CompactUnitFrame_UpdateAllSecure(frame)
     if not InCombatLockdown() then
         if CompactUnitFrame_UpdateInVehicle then
@@ -290,13 +277,9 @@ local function CompactUnitFrame_UpdateAllSecure(frame)
                 CompactUnitFrame_ClearWidgetSet(frame)
             end
 
+            CompactUnitFrame_Hide(frame)
+
             frame.unitExists = false
-
-            frame.background:Hide()
-
-            if frame.powerBar then
-                frame.powerBar.background:Hide()
-            end
         end
 
         for _, hookfunc in ipairs(hooks_CompactUnitFrame_UpdateVisible) do
@@ -343,8 +326,6 @@ local function CompactUnitFrame_UpdateAllSecure(frame)
         if CompactUnitFrame_UpdateWidgetSet then
             CompactUnitFrame_UpdateWidgetSet(frame)
         end
-    else
-        CompactUnitFrame_Hide(frame)
     end
 
     for _, hookfunc in ipairs(hooks_CompactUnitFrame_UpdateAll) do
@@ -379,21 +360,17 @@ hooksecurefunc(
             return
         end
 
-        if frame.unitExists then
-            frame.background:Show()
-
-            if frame.powerBar then
-                frame.powerBar.background:Show()
-            end
-        else
-            frame.background:Hide()
-
-            if frame.powerBar then
-                frame.powerBar.background:Hide()
-            end
-        end
-
         if resolveUnitID(frame.unit) then
+            if frame.unitExists then
+                frame.background:Show()
+
+                if frame.powerBar then
+                    frame.powerBar.background:Show()
+                end
+            else
+                CompactUnitFrame_Hide(frame)
+            end
+
             frame:Show()
         end
     end
@@ -530,6 +507,12 @@ hooksecurefunc(
                 end
 
                 updateAll = true
+            end
+
+            frame.background:Show()
+
+            if frame.powerBar then
+                frame.powerBar.background:Show()
             end
 
             frame:SetScript("OnEnter", nil)
