@@ -154,6 +154,7 @@ local function CompactUnitFrame_Hide(frame)
 
     if frame.powerBar then
         frame.powerBar:SetValue(0)
+        frame.powerBar.background:Hide()
     end
 
     frame.name:Hide()
@@ -278,14 +279,24 @@ local function CompactUnitFrame_UpdateAllSecure(frame)
             end
 
             frame.unitExists = true
+
             frame.background:Show()
+
+            if frame.powerBar then
+                frame.powerBar.background:Show()
+            end
         else
             if CompactUnitFrame_ClearWidgetSet then
                 CompactUnitFrame_ClearWidgetSet(frame)
             end
 
             frame.unitExists = false
+
             frame.background:Hide()
+
+            if frame.powerBar then
+                frame.powerBar.background:Hide()
+            end
         end
 
         for _, hookfunc in ipairs(hooks_CompactUnitFrame_UpdateVisible) do
@@ -370,8 +381,16 @@ hooksecurefunc(
 
         if frame.unitExists then
             frame.background:Show()
+
+            if frame.powerBar then
+                frame.powerBar.background:Show()
+            end
         else
             frame.background:Hide()
+
+            if frame.powerBar then
+                frame.powerBar.background:Hide()
+            end
         end
 
         if resolveUnitID(frame.unit) then
