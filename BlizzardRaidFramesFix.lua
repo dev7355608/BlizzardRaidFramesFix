@@ -145,6 +145,110 @@ end
 local hooks_CompactUnitFrame_UpdateAll = {}
 local hooks_CompactUnitFrame_UpdateVisible = {}
 
+local function CompactUnitFrame_Hide(frame)
+    frame.background:SetAlpha(0)
+
+    frame.healthBar:SetValue(0)
+
+    if frame.powerBar then
+        frame.powerBar:SetValue(0)
+    end
+
+    frame.name:Hide()
+
+    frame.selectionHighlight:Hide()
+
+    if frame.aggroHighlight then
+        frame.aggroHighlight:Hide()
+    end
+
+    if frame.LoseAggroAnim then
+        frame.LoseAggroAnim:Stop()
+    end
+
+    if frame.statusText then
+        frame.statusText:Hide()
+    end
+
+    if frame.myHealPrediction then
+        frame.myHealPrediction:Hide()
+    end
+
+    if frame.otherHealPrediction then
+        frame.otherHealPrediction:Hide()
+    end
+
+    if frame.totalAbsorb then
+        frame.totalAbsorb:Hide()
+    end
+
+    if frame.totalAbsorbOverlay then
+        frame.totalAbsorbOverlay:Hide()
+    end
+
+    if frame.overAbsorbGlow then
+        frame.overAbsorbGlow:Hide()
+    end
+
+    if frame.myHealAbsorb then
+        frame.myHealAbsorb:Hide()
+    end
+
+    if frame.myHealAbsorbLeftShadow then
+        frame.myHealAbsorbLeftShadow:Hide()
+    end
+
+    if frame.myHealAbsorbRightShadow then
+        frame.myHealAbsorbRightShadow:Hide()
+    end
+
+    if frame.overHealAbsorbGlow then
+        frame.overHealAbsorbGlow:Hide()
+    end
+
+    if frame.roleIcon then
+        frame.roleIcon:Hide()
+    end
+
+    if frame.roleIcon then
+        frame.roleIcon:Hide()
+    end
+
+    if frame.readyCheckIcon then
+        frame.readyCheckIcon:Hide()
+    end
+
+    CompactUnitFrame_HideAllBuffs(frame)
+    CompactUnitFrame_HideAllDebuffs(frame)
+    CompactUnitFrame_HideAllDispelDebuffs(frame)
+
+    if frame.centerStatusIcon then
+        frame.centerStatusIcon:Hide()
+    end
+
+    if frame.classificationIndicator then
+        frame.classificationIndicator:Hide()
+    end
+
+    if frame.LevelFrame then
+        if frame.LevelFrame.levelText then
+            frame.LevelFrame.levelText:Hide()
+        end
+
+        if frame.LevelFrame.highLevelTexture then
+            frame.LevelFrame.highLevelTexture:Hide()
+        end
+    end
+
+    if frame.WidgetContainer then
+        frame.WidgetContainer:UnregisterForWidgetSet()
+    end
+
+    if frame.castBar then
+        frame.castBar:Hide()
+    end
+end
+
 hooksecurefunc(
     "CompactUnitFrame_UpdateAll",
     function(frame)
@@ -152,49 +256,8 @@ hooksecurefunc(
             return
         end
 
-        if frame:IsShown() and not UnitExists(frame.displayedUnit) then
-            CompactUnitFrame_UpdateMaxHealth(frame)
-            CompactUnitFrame_UpdateHealth(frame)
-            CompactUnitFrame_UpdateHealthColor(frame)
-            CompactUnitFrame_UpdateMaxPower(frame)
-            CompactUnitFrame_UpdatePower(frame)
-            CompactUnitFrame_UpdatePowerColor(frame)
-            CompactUnitFrame_UpdateName(frame)
-            CompactUnitFrame_UpdateSelectionHighlight(frame)
-
-            if CompactUnitFrame_UpdateAggroHighlight then
-                CompactUnitFrame_UpdateAggroHighlight(frame)
-            end
-
-            if CompactUnitFrame_UpdateAggroFlash then
-                CompactUnitFrame_UpdateAggroFlash(frame)
-            end
-
-            CompactUnitFrame_UpdateHealthBorder(frame)
-            CompactUnitFrame_UpdateInRange(frame)
-            CompactUnitFrame_UpdateStatusText(frame)
-
-            if CompactUnitFrame_UpdateHealPrediction then
-                CompactUnitFrame_UpdateHealPrediction(frame)
-            end
-
-            CompactUnitFrame_UpdateRoleIcon(frame)
-            CompactUnitFrame_UpdateReadyCheck(frame)
-            CompactUnitFrame_UpdateAuras(frame)
-            CompactUnitFrame_UpdateCenterStatusIcon(frame)
-            CompactUnitFrame_UpdateClassificationIndicator(frame)
-
-            if CompactUnitFrame_UpdateLevel then
-                CompactUnitFrame_UpdateLevel(frame)
-            end
-
-            if CompactUnitFrame_UpdateWidgetSet then
-                CompactUnitFrame_UpdateWidgetSet(frame)
-            end
-        end
-
-        if not frame.unitExists then
-            frame.background:SetAlpha(0)
+        if not UnitExists(frame.displayedUnit) then
+            CompactUnitFrame_Hide(frame)
         end
     end
 )
@@ -228,7 +291,7 @@ local function CompactUnitFrame_UpdateAllSecure(frame)
         end
     end
 
-    if frame:IsShown() then
+    if UnitExists(frame.displayedUnit) then
         CompactUnitFrame_UpdateMaxHealth(frame)
         CompactUnitFrame_UpdateHealth(frame)
         CompactUnitFrame_UpdateHealthColor(frame)
@@ -267,10 +330,8 @@ local function CompactUnitFrame_UpdateAllSecure(frame)
         if CompactUnitFrame_UpdateWidgetSet then
             CompactUnitFrame_UpdateWidgetSet(frame)
         end
-    end
-
-    if not frame.unitExists then
-        frame.background:SetAlpha(0)
+    else
+        CompactUnitFrame_Hide(frame)
     end
 
     for _, hookfunc in ipairs(hooks_CompactUnitFrame_UpdateAll) do
