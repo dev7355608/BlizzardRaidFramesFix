@@ -368,10 +368,10 @@ hooksecurefunc(
                     frame.powerBar.background:Show()
                 end
             else
+                frame:Show()
+
                 CompactUnitFrame_Hide(frame)
             end
-
-            frame:Show()
         end
     end
 )
@@ -418,31 +418,33 @@ hooksecurefunc(
             if frame:GetAttribute("unit") == unit then
                 if not frame.onUpdateFrame then
                     frame.onUpdateFrame = CreateFrame("Frame")
+                end
 
-                    frame.onUpdateFrame.func = function(updateFrame, elapsed)
-                        if frame.displayedUnit then
-                            CompactUnitFrame_UpdateAllSecure(frame)
-                        end
+                frame.onUpdateFrame.func = function(updateFrame, elapsed)
+                    if frame.displayedUnit then
+                        CompactUnitFrame_UpdateAllSecure(frame)
                     end
+                end
 
-                    frame.onUpdateFrame.func2 = function(updateFrame, event, arg1)
-                        if event == "PLAYER_ENTERING_WORLD" then
-                            CompactUnitFrame_UpdateAllSecure(frame)
-                        elseif event == "PLAYER_REGEN_ENABLED" then
-                            CompactUnitFrame_UpdateAllSecure(frame)
-                        else
-                            local unitMatches = arg1 == frame.unit or arg1 == frame.displayedUnit
+                frame.onUpdateFrame.func2 = function(updateFrame, event, arg1)
+                    if event == "GROUP_ROSTER_UPDATE" then
+                        CompactUnitFrame_UpdateAllSecure(frame)
+                    elseif event == "PLAYER_ENTERING_WORLD" then
+                        CompactUnitFrame_UpdateAllSecure(frame)
+                    elseif event == "PLAYER_REGEN_ENABLED" then
+                        CompactUnitFrame_UpdateAllSecure(frame)
+                    else
+                        local unitMatches = arg1 == frame.unit or arg1 == frame.displayedUnit
 
-                            if unitMatches then
-                                if event == "UNIT_PET" then
-                                    CompactUnitFrame_UpdateAllSecure(frame)
-                                end
+                        if unitMatches then
+                            if event == "UNIT_PET" then
+                                CompactUnitFrame_UpdateAllSecure(frame)
                             end
+                        end
 
-                            if unitMatches or arg1 == "player" then
-                                if event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" then
-                                    CompactUnitFrame_UpdateAllSecure(frame)
-                                end
+                        if unitMatches or arg1 == "player" then
+                            if event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" then
+                                CompactUnitFrame_UpdateAllSecure(frame)
                             end
                         end
                     end
@@ -450,21 +452,26 @@ hooksecurefunc(
 
                 if frame.onUpdateFrame.doUpdate then
                     frame.onUpdateFrame:SetScript("OnUpdate", frame.onUpdateFrame.func)
+                else
+                    frame.onUpdateFrame:SetScript("OnUpdate", nil)
                 end
 
                 frame.onUpdateFrame:SetScript("OnEvent", frame.onUpdateFrame.func2)
 
-                frame.onUpdateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-
-                frame:UnregisterEvent("PLAYER_ENTERING_WORLD")
+                frame.onUpdateFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
                 frame.onUpdateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-
-                frame:UnregisterEvent("UNIT_PET")
+                frame.onUpdateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
                 frame.onUpdateFrame:RegisterEvent("UNIT_PET")
+
+                frame:UnregisterEvent("GROUP_ROSTER_UPDATE")
+                frame:UnregisterEvent("PLAYER_ENTERING_WORLD")
+                frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
+                frame:UnregisterEvent("UNIT_PET")
 
                 if UnitHasVehicleUI then
                     frame:UnregisterEvent("UNIT_ENTERED_VEHICLE")
                     frame:UnregisterEvent("UNIT_EXITED_VEHICLE")
+
                     frame.onUpdateFrame:RegisterEvent("UNIT_ENTERED_VEHICLE")
                     frame.onUpdateFrame:RegisterEvent("UNIT_EXITED_VEHICLE")
                 end
@@ -489,16 +496,9 @@ hooksecurefunc(
                 frame.isTanking = nil
                 frame.hideCastbar = frame.optionTable.hideCastbar
                 frame.healthBar.healthBackground = nil
-                frame.hasValidVehicleDisplay = false
+                frame.hasValidVehicleDisplay = nil
 
                 frame:SetAttribute("unit", nil)
-
-                if frame.onUpdateFrame then
-                    frame.onUpdateFrame.doUpdate = nil
-                    frame.onUpdateFrame:UnregisterAllEvents()
-                    frame.onUpdateFrame:SetScript("OnEvent", nil)
-                    frame.onUpdateFrame:SetScript("OnUpdate", nil)
-                end
 
                 CompactUnitFrame_UnregisterEvents(frame)
 
@@ -507,6 +507,13 @@ hooksecurefunc(
                 end
 
                 updateAll = true
+            end
+
+            if frame.onUpdateFrame then
+                frame.onUpdateFrame.doUpdate = nil
+                frame.onUpdateFrame:UnregisterAllEvents()
+                frame.onUpdateFrame:SetScript("OnEvent", nil)
+                frame.onUpdateFrame:SetScript("OnUpdate", nil)
             end
 
             frame.background:Show()
@@ -628,7 +635,7 @@ do
     eventFrame:RegisterEvent("UNIT_PET")
     eventFrame:SetScript(
         "OnEvent",
-        function(_, event)
+        function(_, event, arg1)
             if event == "PLAYER_REGEN_ENABLED" then
                 if applyProfile then
                     CompactUnitFrameProfiles_ApplyProfile(applyProfile)
@@ -641,7 +648,7 @@ do
                 applyProfile = nil
                 groupRosterUpdate = false
                 sizeChanged = false
-            elseif event == "GROUP_ROSTER_UPDATE" or event == "UNIT_PET" then
+            elseif event == "GROUP_ROSTER_UPDATE" or event == "UNIT_PET" and CompactRaidFrameContainer.displayPets and (arg1 == "player" or strsub(arg1, 1, 4) == "raid" or strsub(arg1, 1, 5) == "party") then
                 if InCombatLockdown() then
                     local unitIDs = {}
                     local group
@@ -705,7 +712,6 @@ do
 
                                 if not unit then
                                     if frame.onUpdateFrame then
-                                        frame.onUpdateFrame:UnregisterAllEvents()
                                         frame.onUpdateFrame:SetScript("OnEvent", nil)
                                         frame.onUpdateFrame:SetScript("OnUpdate", nil)
                                     end
@@ -718,24 +724,7 @@ do
                                         end
 
                                         frame.onUpdateFrame:SetScript("OnEvent", frame.onUpdateFrame.func2)
-
-                                        frame.onUpdateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-                                        frame.onUpdateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-                                        frame.onUpdateFrame:RegisterEvent("UNIT_PET")
-
-                                        if UnitHasVehicleUI then
-                                            frame.onUpdateFrame:RegisterEvent("UNIT_ENTERED_VEHICLE")
-                                            frame.onUpdateFrame:RegisterEvent("UNIT_EXITED_VEHICLE")
-                                        end
                                     end
-                                end
-
-                                frame:UnregisterEvent("PLAYER_ENTERING_WORLD")
-                                frame:UnregisterEvent("UNIT_PET")
-
-                                if UnitHasVehicleUI then
-                                    frame:UnregisterEvent("UNIT_ENTERED_VEHICLE")
-                                    frame:UnregisterEvent("UNIT_EXITED_VEHICLE")
                                 end
 
                                 if unit and not frame.hideCastbar then
