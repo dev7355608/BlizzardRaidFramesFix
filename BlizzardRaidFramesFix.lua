@@ -160,9 +160,11 @@ local hooks_CastingBarFrame_SetUnit = {}
 local function CompactUnitFrame_Hide(frame)
     frame.background:Hide()
 
+    frame.healthBar:SetMinMaxValues(0, 0)
     frame.healthBar:SetValue(0)
 
     if frame.powerBar then
+        frame.powerBar:SetMinMaxValues(0, 0)
         frame.powerBar:SetValue(0)
         frame.powerBar.background:Hide()
     end
