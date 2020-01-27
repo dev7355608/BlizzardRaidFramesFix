@@ -13,11 +13,7 @@ do
         unitSuffix[unit .. "target"] = "-target"
         unitSuffix[unit .. "targettarget"] = "-target-target"
         unitPrefix[pet] = unit
-        unitPrefix[pet .. "target"] = unit
-        unitPrefix[pet .. "targettarget"] = unit
         unitSuffix[pet] = "-pet"
-        unitSuffix[pet .. "target"] = "-pet-target"
-        unitSuffix[pet .. "targettarget"] = "-pet-target-target"
     end
 
     for i = 1, MAX_PARTY_MEMBERS do
@@ -29,11 +25,7 @@ do
         unitSuffix[unit .. "target"] = "-target"
         unitSuffix[unit .. "targettarget"] = "-target-target"
         unitPrefix[pet] = unit
-        unitPrefix[pet .. "target"] = unit
-        unitPrefix[pet .. "targettarget"] = unit
         unitSuffix[pet] = "-pet"
-        unitSuffix[pet .. "target"] = "-pet-target"
-        unitSuffix[pet .. "targettarget"] = "-pet-target-target"
     end
 
     for i = 1, MAX_RAID_MEMBERS do
@@ -45,11 +37,7 @@ do
         unitSuffix[unit .. "target"] = "-target"
         unitSuffix[unit .. "targettarget"] = "-target-target"
         unitPrefix[pet] = unit
-        unitPrefix[pet .. "target"] = unit
-        unitPrefix[pet .. "targettarget"] = unit
         unitSuffix[pet] = "-pet"
-        unitSuffix[pet .. "target"] = "-pet-target"
-        unitSuffix[pet .. "targettarget"] = "-pet-target-target"
     end
 
     function resolveUnitID(unit)
@@ -669,14 +657,13 @@ do
                     end
 
                     for _, unit in ipairs(group) do
-                        if UnitExists(unit) then
-                            local unitName = GetUnitName(unit, true)
+                        local unitName = GetUnitName(unit, true)
+
+                        if unitName then
                             unitIDs[unitName] = unit
                             unitIDs[unitName .. "-target"] = unit .. "target"
                             unitIDs[unitName .. "-target-target"] = unit .. "targettarget"
                             unitIDs[unitName .. "-pet"] = petIDs[unit]
-                            unitIDs[unitName .. "-pet-target"] = petIDs[unit] .. "target"
-                            unitIDs[unitName .. "-pet-target-target"] = petIDs[unit] .. "targettarget"
                         end
                     end
 
