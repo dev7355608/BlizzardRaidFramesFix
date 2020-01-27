@@ -612,6 +612,17 @@ hooksecurefunc(
 )
 
 do
+    local displayPets = CompactRaidFrameContainer.displayPets
+
+    hooksecurefunc(
+        "CompactRaidFrameContainer_SetDisplayPets",
+        function(self)
+            if not InCombatLockdown() then
+                displayPets = self.displayPets
+            end
+        end
+    )
+
     local groupNone = {"player"}
     local groupParty = {"player"}
     local groupRaid = {}
@@ -627,6 +638,7 @@ do
     local eventFrame = CreateFrame("Frame")
     eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
     eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+    eventFrame:RegisterEvent("UNIT_CONNECTION")
     eventFrame:RegisterEvent("UNIT_PET")
     eventFrame:SetScript(
         "OnEvent",
@@ -643,7 +655,13 @@ do
                 applyProfile = nil
                 groupRosterUpdate = false
                 sizeChanged = false
-            elseif event == "GROUP_ROSTER_UPDATE" or event == "UNIT_PET" and CompactRaidFrameContainer.displayPets and (arg1 == "player" or strsub(arg1, 1, 4) == "raid" or strsub(arg1, 1, 5) == "party") then
+
+                displayPets = CompactRaidFrameContainer.displayPets
+            elseif event == "UNIT_CONNECTION" then
+                if displayPets then
+                    CompactRaidFrameContainer_TryUpdate(CompactRaidFrameContainer)
+                end
+            elseif event == "GROUP_ROSTER_UPDATE" or event == "UNIT_PET" and displayPets and (arg1 == "player" or strsub(arg1, 1, 4) == "raid" or strsub(arg1, 1, 5) == "party") then
                 if InCombatLockdown() then
                     local unitIDs = {}
                     local group
