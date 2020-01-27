@@ -13,11 +13,7 @@ do
         unitSuffix[unit .. "target"] = "-target"
         unitSuffix[unit .. "targettarget"] = "-target-target"
         unitPrefix[pet] = unit
-        unitPrefix[pet .. "target"] = unit
-        unitPrefix[pet .. "targettarget"] = unit
         unitSuffix[pet] = "-pet"
-        unitSuffix[pet .. "target"] = "-pet-target"
-        unitSuffix[pet .. "targettarget"] = "-pet-target-target"
     end
 
     for i = 1, MAX_PARTY_MEMBERS do
@@ -29,11 +25,7 @@ do
         unitSuffix[unit .. "target"] = "-target"
         unitSuffix[unit .. "targettarget"] = "-target-target"
         unitPrefix[pet] = unit
-        unitPrefix[pet .. "target"] = unit
-        unitPrefix[pet .. "targettarget"] = unit
         unitSuffix[pet] = "-pet"
-        unitSuffix[pet .. "target"] = "-pet-target"
-        unitSuffix[pet .. "targettarget"] = "-pet-target-target"
     end
 
     for i = 1, MAX_RAID_MEMBERS do
@@ -45,11 +37,7 @@ do
         unitSuffix[unit .. "target"] = "-target"
         unitSuffix[unit .. "targettarget"] = "-target-target"
         unitPrefix[pet] = unit
-        unitPrefix[pet .. "target"] = unit
-        unitPrefix[pet .. "targettarget"] = unit
         unitSuffix[pet] = "-pet"
-        unitSuffix[pet .. "target"] = "-pet-target"
-        unitSuffix[pet .. "targettarget"] = "-pet-target-target"
     end
 
     function resolveUnitID(unit)
@@ -424,7 +412,8 @@ hooksecurefunc(
 
         local updateAll = false
 
-        local unitTarget = resolveUnitID(unit)
+        local unitTarget, ok = resolveUnitID(unit)
+        assert(not unit or ok)
 
         if unitTarget then
             if frame:GetAttribute("unit") == unit then
@@ -445,6 +434,12 @@ hooksecurefunc(
                         CompactUnitFrame_UpdateAllSecure(frame)
                     elseif event == "PLAYER_REGEN_ENABLED" then
                         CompactUnitFrame_UpdateAllSecure(frame)
+                    elseif event == "UNIT_CONNECTION" then
+                        local pet = petIDs[unit]
+
+                        if unit == frame.unit or unit == frame.displayedUnit or pet == frame.unit or pet == frame.displayedUnit then
+                            CompactUnitFrame_UpdateAllSecure(frame)
+                        end
                     elseif event == "UNIT_PET" then
                         local pet = petIDs[unit]
 
@@ -469,11 +464,13 @@ hooksecurefunc(
                 frame.onUpdateFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
                 frame.onUpdateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
                 frame.onUpdateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+                frame.onUpdateFrame:RegisterEvent("UNIT_CONNECTION")
                 frame.onUpdateFrame:RegisterEvent("UNIT_PET")
 
                 frame:UnregisterEvent("GROUP_ROSTER_UPDATE")
                 frame:UnregisterEvent("PLAYER_ENTERING_WORLD")
                 frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
+                frame:UnregisterEvent("UNIT_CONNECTION")
                 frame:UnregisterEvent("UNIT_PET")
 
                 if UnitHasVehicleUI then
@@ -615,6 +612,17 @@ hooksecurefunc(
 )
 
 do
+    local displayPets = CompactRaidFrameContainer.displayPets
+
+    hooksecurefunc(
+        "CompactRaidFrameContainer_SetDisplayPets",
+        function(self)
+            if not InCombatLockdown() then
+                displayPets = self.displayPets
+            end
+        end
+    )
+
     local groupNone = {"player"}
     local groupParty = {"player"}
     local groupRaid = {}
@@ -630,6 +638,7 @@ do
     local eventFrame = CreateFrame("Frame")
     eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
     eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+    eventFrame:RegisterEvent("UNIT_CONNECTION")
     eventFrame:RegisterEvent("UNIT_PET")
     eventFrame:SetScript(
         "OnEvent",
@@ -646,7 +655,13 @@ do
                 applyProfile = nil
                 groupRosterUpdate = false
                 sizeChanged = false
-            elseif event == "GROUP_ROSTER_UPDATE" or event == "UNIT_PET" and CompactRaidFrameContainer.displayPets and (arg1 == "player" or strsub(arg1, 1, 4) == "raid" or strsub(arg1, 1, 5) == "party") then
+
+                displayPets = CompactRaidFrameContainer.displayPets
+            elseif event == "UNIT_CONNECTION" then
+                if displayPets then
+                    CompactRaidFrameContainer_TryUpdate(CompactRaidFrameContainer)
+                end
+            elseif event == "GROUP_ROSTER_UPDATE" or event == "UNIT_PET" and displayPets and (arg1 == "player" or strsub(arg1, 1, 4) == "raid" or strsub(arg1, 1, 5) == "party") then
                 if InCombatLockdown() then
                     local unitIDs = {}
                     local group
@@ -660,14 +675,13 @@ do
                     end
 
                     for _, unit in ipairs(group) do
-                        if UnitExists(unit) then
-                            local unitName = GetUnitName(unit, true)
+                        local unitName = GetUnitName(unit, true)
+
+                        if unitName then
                             unitIDs[unitName] = unit
                             unitIDs[unitName .. "-target"] = unit .. "target"
                             unitIDs[unitName .. "-target-target"] = unit .. "targettarget"
                             unitIDs[unitName .. "-pet"] = petIDs[unit]
-                            unitIDs[unitName .. "-pet-target"] = petIDs[unit] .. "target"
-                            unitIDs[unitName .. "-pet-target-target"] = petIDs[unit] .. "targettarget"
                         end
                     end
 
