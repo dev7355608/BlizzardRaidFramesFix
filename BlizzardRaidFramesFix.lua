@@ -637,6 +637,7 @@ do
 
     local eventFrame = CreateFrame("Frame")
     eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+    eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
     eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
     eventFrame:RegisterEvent("UNIT_CONNECTION")
     eventFrame:RegisterEvent("UNIT_PET")
@@ -657,6 +658,8 @@ do
                 sizeChanged = false
 
                 displayPets = CompactRaidFrameContainer.displayPets
+            elseif event == "PLAYER_ENTERING_WORLD" then
+                CompactRaidFrameContainer_TryUpdate(CompactRaidFrameContainer)
             elseif event == "UNIT_CONNECTION" then
                 if displayPets then
                     CompactRaidFrameContainer_TryUpdate(CompactRaidFrameContainer)
