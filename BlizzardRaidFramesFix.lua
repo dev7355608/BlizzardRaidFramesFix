@@ -424,7 +424,8 @@ hooksecurefunc(
 
         local updateAll = false
 
-        local unitTarget = resolveUnitID(unit)
+        local unitTarget, ok = resolveUnitID(unit)
+        assert(not unit or ok)
 
         if unitTarget then
             if frame:GetAttribute("unit") == unit then
@@ -445,6 +446,12 @@ hooksecurefunc(
                         CompactUnitFrame_UpdateAllSecure(frame)
                     elseif event == "PLAYER_REGEN_ENABLED" then
                         CompactUnitFrame_UpdateAllSecure(frame)
+                    elseif event == "UNIT_CONNECTION" then
+                        local pet = petIDs[unit]
+
+                        if unit == frame.unit or unit == frame.displayedUnit or pet == frame.unit or pet == frame.displayedUnit then
+                            CompactUnitFrame_UpdateAllSecure(frame)
+                        end
                     elseif event == "UNIT_PET" then
                         local pet = petIDs[unit]
 
@@ -469,11 +476,13 @@ hooksecurefunc(
                 frame.onUpdateFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
                 frame.onUpdateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
                 frame.onUpdateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+                frame.onUpdateFrame:RegisterEvent("UNIT_CONNECTION")
                 frame.onUpdateFrame:RegisterEvent("UNIT_PET")
 
                 frame:UnregisterEvent("GROUP_ROSTER_UPDATE")
                 frame:UnregisterEvent("PLAYER_ENTERING_WORLD")
                 frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
+                frame:UnregisterEvent("UNIT_CONNECTION")
                 frame:UnregisterEvent("UNIT_PET")
 
                 if UnitHasVehicleUI then
