@@ -996,7 +996,16 @@ do
         )
     end
 
-    eventHandlers.PLAYER_ENTERING_WORLD = eventHandlers.GROUP_ROSTER_UPDATE
+    local _CompactUnitFrameProfiles_ApplyProfile = CompactUnitFrameProfiles_ApplyProfile
+
+    function eventHandlers.PLAYER_ENTERING_WORLD(self)
+        if not InCombatLockdown() then
+            CompactRaidFrameContainer_UpdateDisplayedUnits(self)
+            _CompactUnitFrameProfiles_ApplyProfile(GetActiveRaidProfile())
+        else
+            eventHandlers.GROUP_ROSTER_UPDATE(self)
+        end
+    end
 
     function eventHandlers.UNIT_PET(self, unit)
         if self._displayPets then
