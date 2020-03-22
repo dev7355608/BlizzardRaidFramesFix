@@ -6,4 +6,8 @@
 ## X-Curse-Project-ID: 357629
 ## X-WoWI-ID: 25484
 
+libs\LibStub\LibStub.lua
+libs\LibUIDropDownMenu\LibUIDropDownMenu.xml
+
+UnitPopup.lua
 BlizzardRaidFramesFix.lua
