@@ -1,5 +1,3 @@
-local _, addonTable = ...
-
 local resolveUnitID
 
 do
@@ -1135,18 +1133,19 @@ hooksecurefunc(
     end
 )
 
-function CompactUnitFrame_SetMenuFunc(frame, menuFunc)
-    frame.dropDown = L_Create_UIDropDownMenu(frame:GetName() .. "DropDown", frame)
+for _, menu in ipairs({"SELF", "VEHICLE", "PET", "RAID_PLAYER", "PARTY", "PLAYER", "TARGET"}) do
+    local buttons = UnitPopupMenus[menu]
+    local buttons2 = {}
 
-    L_UIDropDownMenu_Initialize(frame.dropDown, menuFunc, "MENU")
+    for i = 1, #buttons do
+        local button = buttons[i]
 
-    frame.menu = function()
-        for i = 1, UIDROPDOWNMENU_MAXLEVELS do
-            _G["DropDownList" .. i]:Hide()
+        if button ~= "SET_FOCUS" and button ~= "CLEAR_FOCUS" and button ~= "PVP_REPORT_AFK" then
+            tinsert(buttons2, button)
         end
-
-        L_ToggleDropDownMenu(1, nil, frame.dropDown, frame:GetName(), 0, 0)
     end
+
+    UnitPopupMenus["_BRFF_" .. menu] = buttons2
 end
 
 function CompactUnitFrameDropDown_Initialize(self)
@@ -1182,6 +1181,6 @@ function CompactUnitFrameDropDown_Initialize(self)
     end
 
     if menu then
-        addonTable.UnitPopup_ShowMenu(self, menu, unit, name, id)
+        UnitPopup_ShowMenu(self, "_BRFF_" .. menu, unit, name, id)
     end
 end
