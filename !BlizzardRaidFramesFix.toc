@@ -1,4 +1,4 @@
-﻿## Interface: 80300
+## Interface: 90005
 ## Title: Blizzard Raid Frames Fix
 ## Version: @project-version@
 ## Authors: dev7355608

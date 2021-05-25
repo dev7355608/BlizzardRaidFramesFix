@@ -442,7 +442,7 @@ local function CompactUnitFrame_UpdateAllSecure(frame)
     end
 end
 
-if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
+if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
     if CompactUnitFrame_UpdateInVehicle then
         hooksecurefunc(
             "CompactUnitFrame_UpdateInVehicle",
@@ -499,7 +499,7 @@ hooksecurefunc(
     end
 )
 
-if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
     hooksecurefunc(
         "CompactUnitFrame_UpdateRoleIcon",
         function(frame)
