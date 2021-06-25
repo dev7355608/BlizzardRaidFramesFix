@@ -687,12 +687,6 @@ do
                 end
             end
 
-            frame:SetScript("OnEnter", UnitFrame_OnEnter)
-
-            if Clique then
-                Clique:RegisterFrame(frame)
-            end
-
             frames[frame] = unitTarget
 
             if updateAll then
@@ -836,20 +830,6 @@ local function updateAllFrames()
                 end
             end
 
-            if unit then
-                frame:SetScript("OnEnter", UnitFrame_OnEnter)
-
-                if Clique then
-                    Clique:RegisterFrame(frame)
-                end
-            else
-                frame:SetScript("OnEnter", nil)
-
-                if Clique then
-                    Clique:UnregisterFrame(frame)
-                end
-            end
-
             CompactUnitFrame_UpdateAllSecure(frame)
 
             for _, hookfunc in ipairs(hooks_CompactUnitFrame_SetUnit) do
@@ -858,6 +838,19 @@ local function updateAllFrames()
         end
     end
 end
+
+local function CompactUnitFrame_OnEnter(self)
+    if self.unit then
+        UnitFrame_UpdateTooltip(self)
+    end
+end
+
+hooksecurefunc(
+    "CompactUnitFrame_SetUpFrame",
+    function(frame)
+        frame:SetScript("OnEnter", CompactUnitFrame_OnEnter)
+    end
+)
 
 do
     local function CompactPartyFrame_UpdateUnits(self)
