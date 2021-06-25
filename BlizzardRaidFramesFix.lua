@@ -689,6 +689,10 @@ do
 
             frame:SetScript("OnEnter", UnitFrame_OnEnter)
 
+            if Clique then
+                Clique:RegisterFrame(frame)
+            end
+
             frames[frame] = unitTarget
 
             if updateAll then
@@ -834,8 +838,16 @@ local function updateAllFrames()
 
             if unit then
                 frame:SetScript("OnEnter", UnitFrame_OnEnter)
+
+                if Clique then
+                    Clique:RegisterFrame(frame)
+                end
             else
                 frame:SetScript("OnEnter", nil)
+
+                if Clique then
+                    Clique:UnregisterFrame(frame)
+                end
             end
 
             CompactUnitFrame_UpdateAllSecure(frame)
