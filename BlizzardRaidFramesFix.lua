@@ -848,6 +848,10 @@ end
 hooksecurefunc(
     "CompactUnitFrame_SetUpFrame",
     function(frame)
+        if frame:IsForbidden() or not frame:GetName() or not frame:GetName():find("^Compact") then
+            return
+        end
+
         frame:SetScript("OnEnter", CompactUnitFrame_OnEnter)
     end
 )
