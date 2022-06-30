@@ -1143,7 +1143,8 @@ hooksecurefunc(
 )
 
 for _, menu in ipairs({"SELF", "VEHICLE", "PET", "RAID_PLAYER", "PARTY", "PLAYER", "TARGET"}) do
-    local buttons = UnitPopupManager:GetMenu(menu):GetMenuButtons();
+    local originalMenu = UnitPopupManager:GetMenu(menu);
+    local buttons = originalMenu:GetMenuButtons();
     local buttons2 = {};
 
     for i = 1, #buttons do
@@ -1155,6 +1156,7 @@ for _, menu in ipairs({"SELF", "VEHICLE", "PET", "RAID_PLAYER", "PARTY", "PLAYER
     end
 
     local unitPopupMenu = CreateFromMixins(UnitPopupTopLevelMenuMixin);
+    unitPopupMenu.IsMenu = originalMenu.IsMenu;
     function unitPopupMenu:GetMenuButtons()
         return buttons2;
     end
