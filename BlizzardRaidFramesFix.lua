@@ -1157,7 +1157,7 @@ for _, menu in ipairs({"SELF", "VEHICLE", "PET", "RAID_PLAYER", "PARTY", "PLAYER
 
     local unitPopupMenu = CreateFromMixins(UnitPopupTopLevelMenuMixin);
     unitPopupMenu.IsMenu = originalMenu.IsMenu;
-    function unitPopupMenu:GetMenuButtons()
+    unitPopupMenu.GetMenuButtons = function ()
         return buttons2;
     end
 
