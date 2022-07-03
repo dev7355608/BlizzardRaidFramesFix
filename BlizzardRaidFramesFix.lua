@@ -1142,26 +1142,43 @@ hooksecurefunc(
     end
 )
 
-for _, menu in ipairs({"SELF", "VEHICLE", "PET", "RAID_PLAYER", "PARTY", "PLAYER", "TARGET"}) do
-    local originalMenu = UnitPopupManager:GetMenu(menu);
-    local buttons = originalMenu:GetMenuButtons();
-    local buttons2 = {};
+if UnitPopupManager ~= nil then
+    for _, menu in ipairs({"SELF", "VEHICLE", "PET", "RAID_PLAYER", "PARTY", "PLAYER", "TARGET"}) do
+        local originalMenu = UnitPopupManager:GetMenu(menu)
+        local buttons = originalMenu:GetMenuButtons()
+        local buttons2 = {}
 
-    for i = 1, #buttons do
-        local button = buttons[i]
-        local buttonText = button.GetText and button:GetText();
-        if buttonText ~= SET_FOCUS and buttonText ~= CLEAR_FOCUS and buttonText ~= PVP_REPORT_AFK then
-            tinsert(buttons2, button)
+        for i = 1, #buttons do
+            local button = buttons[i]
+            local buttonText = button.GetText and button:GetText()
+            if buttonText ~= SET_FOCUS and buttonText ~= CLEAR_FOCUS and buttonText ~= PVP_REPORT_AFK then
+                tinsert(buttons2, button)
+            end
         end
-    end
 
-    local unitPopupMenu = CreateFromMixins(UnitPopupTopLevelMenuMixin);
-    unitPopupMenu.IsMenu = originalMenu.IsMenu;
-    unitPopupMenu.GetMenuButtons = function ()
-        return buttons2;
-    end
+        local unitPopupMenu = CreateFromMixins(UnitPopupTopLevelMenuMixin)
+        unitPopupMenu.IsMenu = originalMenu.IsMenu
+        unitPopupMenu.GetMenuButtons = function()
+            return buttons2
+        end
 
-    UnitPopupManager:RegisterMenu("_BRFF_" .. menu, unitPopupMenu);
+        UnitPopupManager:RegisterMenu("_BRFF_" .. menu, unitPopupMenu)
+    end
+else
+    for _, menu in ipairs({"SELF", "VEHICLE", "PET", "RAID_PLAYER", "PARTY", "PLAYER", "TARGET"}) do
+        local buttons = UnitPopupMenus[menu]
+        local buttons2 = {}
+
+        for i = 1, #buttons do
+            local button = buttons[i]
+
+            if button ~= "SET_FOCUS" and button ~= "CLEAR_FOCUS" and button ~= "PVP_REPORT_AFK" then
+                tinsert(buttons2, button)
+            end
+        end
+
+        UnitPopupMenus["_BRFF_" .. menu] = buttons2
+    end
 end
 
 function CompactUnitFrameDropDown_Initialize(self)
