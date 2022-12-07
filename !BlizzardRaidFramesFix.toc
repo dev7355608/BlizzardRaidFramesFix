@@ -1,4 +1,4 @@
-## Interface: 90005
+## Interface: 100002
 ## Title: Blizzard Raid Frames Fix
 ## Version: @project-version@
 ## Authors: dev7355608

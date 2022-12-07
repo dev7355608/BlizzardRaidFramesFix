@@ -83,7 +83,6 @@ setmetatable(frames, {__mode = "k"})
 local hooks_CompactUnitFrame_UpdateAll = {}
 local hooks_CompactUnitFrame_UpdateVisible = {}
 local hooks_CompactUnitFrame_SetUnit = {}
-local hooks_CastingBarFrame_SetUnit = {}
 
 local FuturePrototype = {}
 local FutureMetatable = {
@@ -322,10 +321,6 @@ local function CompactUnitFrame_Hide(frame)
         frame.roleIcon:Hide()
     end
 
-    if frame.roleIcon then
-        frame.roleIcon:Hide()
-    end
-
     if frame.readyCheckIcon then
         frame.readyCheckIcon:Hide()
     end
@@ -355,18 +350,79 @@ local function CompactUnitFrame_Hide(frame)
     if frame.WidgetContainer then
         frame.WidgetContainer:UnregisterForWidgetSet()
     end
+end
 
-    if frame.castBar then
-        frame.castBar:Hide()
+local CompactUnitFrame_UpdateAllSecure_IfUnitExists
+
+if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+    function CompactUnitFrame_UpdateAllSecure_IfUnitExists(frame)
+        CompactUnitFrame_UpdateMaxHealth(frame)
+        CompactUnitFrame_UpdateHealth(frame)
+        CompactUnitFrame_UpdateMaxPower(frame)
+        CompactUnitFrame_UpdatePower(frame)
+        CompactUnitFrame_UpdatePowerColor(frame)
+        CompactUnitFrame_UpdateWidgetsOnlyMode(frame)
+        CompactUnitFrame_UpdateSelectionHighlight(frame)
+        CompactUnitFrame_UpdateAggroHighlight(frame)
+        CompactUnitFrame_UpdateAggroFlash(frame)
+        CompactUnitFrame_UpdateHealthBorder(frame)
+        CompactUnitFrame_UpdateInRange(frame)
+        CompactUnitFrame_UpdateStatusText(frame)
+        CompactUnitFrame_UpdateHealPrediction(frame)
+        CompactUnitFrame_UpdateRoleIcon(frame)
+        CompactUnitFrame_UpdateReadyCheck(frame)
+        CompactUnitFrame_UpdateAuras(frame)
+        CompactUnitFrame_UpdateCenterStatusIcon(frame)
+        CompactUnitFrame_UpdateClassificationIndicator(frame)
+        CompactUnitFrame_UpdateWidgetSet(frame)
+    end
+elseif WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC then
+    function CompactUnitFrame_UpdateAllSecure_IfUnitExists(frame)
+        CompactUnitFrame_UpdateMaxHealth(frame)
+        CompactUnitFrame_UpdateHealth(frame)
+        CompactUnitFrame_UpdateHealthColor(frame)
+        CompactUnitFrame_UpdateMaxPower(frame)
+        CompactUnitFrame_UpdatePower(frame)
+        CompactUnitFrame_UpdatePowerColor(frame)
+        CompactUnitFrame_UpdateName(frame)
+        CompactUnitFrame_UpdateSelectionHighlight(frame)
+        CompactUnitFrame_UpdateAggroHighlight(frame)
+        CompactUnitFrame_UpdateAggroFlash(frame)
+        CompactUnitFrame_UpdateHealthBorder(frame)
+        CompactUnitFrame_UpdateInRange(frame)
+        CompactUnitFrame_UpdateStatusText(frame)
+        CompactUnitFrame_UpdateRoleIcon(frame)
+        CompactUnitFrame_UpdateReadyCheck(frame)
+        CompactUnitFrame_UpdateAuras(frame)
+        CompactUnitFrame_UpdateCenterStatusIcon(frame)
+        CompactUnitFrame_UpdateClassificationIndicator(frame)
+        CompactUnitFrame_UpdateLevel(frame)
+    end
+elseif WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+    function CompactUnitFrame_UpdateAllSecure_IfUnitExists(frame)
+        CompactUnitFrame_UpdateMaxHealth(frame)
+        CompactUnitFrame_UpdateHealth(frame)
+        CompactUnitFrame_UpdateHealthColor(frame)
+        CompactUnitFrame_UpdateMaxPower(frame)
+        CompactUnitFrame_UpdatePower(frame)
+        CompactUnitFrame_UpdatePowerColor(frame)
+        CompactUnitFrame_UpdateName(frame)
+        CompactUnitFrame_UpdateSelectionHighlight(frame)
+        CompactUnitFrame_UpdateHealthBorder(frame)
+        CompactUnitFrame_UpdateInRange(frame)
+        CompactUnitFrame_UpdateStatusText(frame)
+        CompactUnitFrame_UpdateRoleIcon(frame)
+        CompactUnitFrame_UpdateReadyCheck(frame)
+        CompactUnitFrame_UpdateAuras(frame)
+        CompactUnitFrame_UpdateCenterStatusIcon(frame)
+        CompactUnitFrame_UpdateClassificationIndicator(frame)
+        CompactUnitFrame_UpdateLevel(frame)
     end
 end
 
 local function CompactUnitFrame_UpdateAllSecure(frame)
     if not InCombatLockdown() then
-        if CompactUnitFrame_UpdateInVehicle then
-            CompactUnitFrame_UpdateInVehicle(frame)
-        end
-
+        CompactUnitFrame_UpdateInVehicle(frame)
         CompactUnitFrame_UpdateVisible(frame)
     else
         if UnitExists(frame.displayedUnit) then
@@ -397,44 +453,7 @@ local function CompactUnitFrame_UpdateAllSecure(frame)
     end
 
     if frame.unitExists then
-        CompactUnitFrame_UpdateMaxHealth(frame)
-        CompactUnitFrame_UpdateHealth(frame)
-        CompactUnitFrame_UpdateHealthColor(frame)
-        CompactUnitFrame_UpdateMaxPower(frame)
-        CompactUnitFrame_UpdatePower(frame)
-        CompactUnitFrame_UpdatePowerColor(frame)
-        CompactUnitFrame_UpdateName(frame)
-        CompactUnitFrame_UpdateSelectionHighlight(frame)
-
-        if CompactUnitFrame_UpdateAggroHighlight then
-            CompactUnitFrame_UpdateAggroHighlight(frame)
-        end
-
-        if CompactUnitFrame_UpdateAggroFlash then
-            CompactUnitFrame_UpdateAggroFlash(frame)
-        end
-
-        CompactUnitFrame_UpdateHealthBorder(frame)
-        CompactUnitFrame_UpdateInRange(frame)
-        CompactUnitFrame_UpdateStatusText(frame)
-
-        if CompactUnitFrame_UpdateHealPrediction then
-            CompactUnitFrame_UpdateHealPrediction(frame)
-        end
-
-        CompactUnitFrame_UpdateRoleIcon(frame)
-        CompactUnitFrame_UpdateReadyCheck(frame)
-        CompactUnitFrame_UpdateAuras(frame)
-        CompactUnitFrame_UpdateCenterStatusIcon(frame)
-        CompactUnitFrame_UpdateClassificationIndicator(frame)
-
-        if CompactUnitFrame_UpdateLevel then
-            CompactUnitFrame_UpdateLevel(frame)
-        end
-
-        if CompactUnitFrame_UpdateWidgetSet then
-            CompactUnitFrame_UpdateWidgetSet(frame)
-        end
+        CompactUnitFrame_UpdateAllSecure_IfUnitExists(frame)
     end
 
     for _, hookfunc in ipairs(hooks_CompactUnitFrame_UpdateAll) do
@@ -442,25 +461,21 @@ local function CompactUnitFrame_UpdateAllSecure(frame)
     end
 end
 
-if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
-    if CompactUnitFrame_UpdateInVehicle then
-        hooksecurefunc(
-            "CompactUnitFrame_UpdateInVehicle",
-            function(frame)
-                if frames[frame] == nil then
-                    return
-                end
+hooksecurefunc(
+    "CompactUnitFrame_UpdateInVehicle",
+    function(frame)
+        if frames[frame] == nil then
+            return
+        end
 
-                local unit = frame:GetAttribute("unit")
-                local unitTarget = resolveUnitID(unit)
+        local unit = frame:GetAttribute("unit")
+        local unitTarget = resolveUnitID(unit)
 
-                if unitTarget then
-                    frame:SetAttribute("unit", unitTarget)
-                end
-            end
-        )
+        if unitTarget then
+            frame:SetAttribute("unit", unitTarget)
+        end
     end
-end
+)
 
 hooksecurefunc(
     "CompactUnitFrame_UpdateVisible",
@@ -520,6 +535,21 @@ if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
             end
         end
     )
+end
+
+local CompactRaidFrameContainer_UpdateDisplayedUnits
+local CompactRaidFrameContainer_TryUpdate
+
+if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
+    CompactRaidFrameContainer_UpdateDisplayedUnits = _G.CompactRaidFrameContainer_UpdateDisplayedUnits
+    CompactRaidFrameContainer_TryUpdate = _G.CompactRaidFrameContainer_TryUpdate
+else
+    function CompactRaidFrameContainer_UpdateDisplayedUnits(self)
+    end
+
+    function CompactRaidFrameContainer_TryUpdate(self)
+        return self:TryUpdate()
+    end
 end
 
 do
@@ -649,10 +679,6 @@ do
                     frame:SetAttribute("unit", nil)
 
                     CompactUnitFrame_UnregisterEvents(frame)
-
-                    if frame.castBar then
-                        CastingBarFrame_SetUnit(frame.castBar, nil, nil, nil)
-                    end
 
                     updateAll = true
                 end
@@ -804,29 +830,6 @@ local function updateAllFrames()
                     end
 
                     frame.onUpdateFrame:SetScript("OnEvent", frame.onUpdateFrame.func2)
-                end
-            end
-
-            if unit and not frame.hideCastbar then
-                if not currentUnit then
-                    if frame.castBar then
-                        CastingBarFrame_SetUnit(frame.castBar, unit, false, true)
-                    end
-                else
-                    if frame.castBar then
-                        frame.castBar.unit = unit
-                        frame.castBar:RegisterUnitEvent("UNIT_SPELLCAST_START", unit)
-                        frame.castBar:RegisterUnitEvent("UNIT_SPELLCAST_STOP", unit)
-                        frame.castBar:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", unit)
-
-                        for _, hookfunc in ipairs(hooks_CastingBarFrame_SetUnit) do
-                            hookfunc(frame, unit, frame.castBar.showTradeSkills, frame.castBar.showShield)
-                        end
-                    end
-                end
-            else
-                if frame.castBar then
-                    CastingBarFrame_SetUnit(frame.castBar, nil, nil, nil)
                 end
             end
 
@@ -1135,85 +1138,7 @@ hooksecurefunc(
                 tinsert(hooks_CompactUnitFrame_UpdateVisible, hookfunc)
             elseif functionName == "CompactUnitFrame_SetUnit" then
                 tinsert(hooks_CompactUnitFrame_SetUnit, hookfunc)
-            elseif functionName == "CastingBarFrame_SetUnit" then
-                tinsert(hooks_CastingBarFrame_SetUnit, hookfunc)
             end
         end
     end
 )
-
-if UnitPopupManager ~= nil then
-    for _, menu in ipairs({"SELF", "VEHICLE", "PET", "RAID_PLAYER", "PARTY", "PLAYER", "TARGET"}) do
-        local originalMenu = UnitPopupManager:GetMenu(menu)
-        local buttons = originalMenu:GetMenuButtons()
-        local buttons2 = {}
-
-        for i = 1, #buttons do
-            local button = buttons[i]
-            local buttonText = button.GetText and button:GetText()
-            if buttonText ~= SET_FOCUS and buttonText ~= CLEAR_FOCUS and buttonText ~= PVP_REPORT_AFK then
-                tinsert(buttons2, button)
-            end
-        end
-
-        local unitPopupMenu = CreateFromMixins(UnitPopupTopLevelMenuMixin)
-        unitPopupMenu.IsMenu = originalMenu.IsMenu
-        unitPopupMenu.GetMenuButtons = function()
-            return buttons2
-        end
-
-        UnitPopupManager:RegisterMenu("_BRFF_" .. menu, unitPopupMenu)
-    end
-else
-    for _, menu in ipairs({"SELF", "VEHICLE", "PET", "RAID_PLAYER", "PARTY", "PLAYER", "TARGET"}) do
-        local buttons = UnitPopupMenus[menu]
-        local buttons2 = {}
-
-        for i = 1, #buttons do
-            local button = buttons[i]
-
-            if button ~= "SET_FOCUS" and button ~= "CLEAR_FOCUS" and button ~= "PVP_REPORT_AFK" then
-                tinsert(buttons2, button)
-            end
-        end
-
-        UnitPopupMenus["_BRFF_" .. menu] = buttons2
-    end
-end
-
-function CompactUnitFrameDropDown_Initialize(self)
-    local unit = self:GetParent().unit
-
-    if not unit then
-        return
-    end
-
-    local menu
-    local name
-    local id
-
-    if UnitIsUnit(unit, "player") then
-        menu = "SELF"
-    elseif UnitIsUnit(unit, "vehicle") then
-        menu = "VEHICLE"
-    elseif UnitIsUnit(unit, "pet") then
-        menu = "PET"
-    elseif UnitIsPlayer(unit) then
-        id = UnitInRaid(unit)
-
-        if id then
-            menu = "RAID_PLAYER"
-        elseif UnitInParty(unit) then
-            menu = "PARTY"
-        else
-            menu = "PLAYER"
-        end
-    else
-        menu = "TARGET"
-        name = RAID_TARGET_ICON
-    end
-
-    if menu then
-        UnitPopup_ShowMenu(self, "_BRFF_" .. menu, unit, name, id)
-    end
-end
