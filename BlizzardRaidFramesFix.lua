@@ -1062,7 +1062,15 @@ do
 end
 
 do
-    local _CompactRaidFrameContainer_OnSizeChanged = CompactRaidFrameContainer_OnSizeChanged
+    local _CompactRaidFrameContainer_OnSizeChanged
+
+    if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
+        _CompactRaidFrameContainer_OnSizeChanged = _G.CompactRaidFrameContainer_OnSizeChanged
+    else
+        function _CompactRaidFrameContainer_OnSizeChanged(self)
+            return self:OnSizeChanged()
+        end
+    end
 
     local future
 
