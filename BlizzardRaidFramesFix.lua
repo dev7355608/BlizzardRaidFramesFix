@@ -628,7 +628,7 @@ do
                                     )
                                 end
                             end
-                        elseif event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" then
+                        elseif event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" or event == "PLAYER_GAINS_VEHICLE_DATA" or event == "PLAYER_LOSES_VEHICLE_DATA" then
                             if unit == frame.unit or unit == frame.displayedUnit or unit == "player" then
                                 CompactUnitFrame_UpdateAllSecure(frame)
                             end
@@ -659,9 +659,13 @@ do
                     if UnitHasVehicleUI then
                         frame:UnregisterEvent("UNIT_ENTERED_VEHICLE")
                         frame:UnregisterEvent("UNIT_EXITED_VEHICLE")
+                        frame:UnregisterEvent("PLAYER_GAINS_VEHICLE_DATA")
+                        frame:UnregisterEvent("PLAYER_LOSES_VEHICLE_DATA")
 
                         frame.onUpdateFrame:RegisterEvent("UNIT_ENTERED_VEHICLE")
                         frame.onUpdateFrame:RegisterEvent("UNIT_EXITED_VEHICLE")
+                        frame.onUpdateFrame:RegisterEvent("PLAYER_GAINS_VEHICLE_DATA")
+                        frame.onUpdateFrame:RegisterEvent("PLAYER_LOSES_VEHICLE_DATA")
                     end
 
                     CompactUnitFrame_RegisterEvents(frame)
