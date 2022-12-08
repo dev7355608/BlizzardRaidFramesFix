@@ -539,16 +539,22 @@ end
 
 local CompactRaidFrameContainer_UpdateDisplayedUnits
 local CompactRaidFrameContainer_TryUpdate
+local CompactRaidFrameContainer_ApplyToFrames
 
 if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
     CompactRaidFrameContainer_UpdateDisplayedUnits = _G.CompactRaidFrameContainer_UpdateDisplayedUnits
     CompactRaidFrameContainer_TryUpdate = _G.CompactRaidFrameContainer_TryUpdate
+    CompactRaidFrameContainer_ApplyToFrames = _G.CompactRaidFrameContainer_ApplyToFrames
 else
     function CompactRaidFrameContainer_UpdateDisplayedUnits(self)
     end
 
     function CompactRaidFrameContainer_TryUpdate(self)
         return self:TryUpdate()
+    end
+
+    function CompactRaidFrameContainer_ApplyToFrames(self, ...)
+        return self:ApplyToFrames(...)
     end
 end
 
@@ -977,12 +983,18 @@ end
 do
     local eventHandlers = {}
 
-    function CompactRaidFrameContainer_OnEvent(self, event, ...)
+    local function CompactRaidFrameContainer_OnEvent(self, event, ...)
         local eventHandler = eventHandlers[event]
 
         if eventHandler then
             eventHandler(self, ...)
         end
+    end
+
+    if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
+        _G.CompactRaidFrameContainer_OnEvent = CompactRaidFrameContainer_OnEvent
+    else
+        CompactRaidFrameContainerMixin.OnEvent = CompactRaidFrameContainer_OnEvent
     end
 
     CompactRaidFrameContainer:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -1014,7 +1026,7 @@ do
         if not InCombatLockdown() then
             CompactRaidFrameContainer_UpdateDisplayedUnits(self)
 
-            if RaidProfileExists(GetActiveRaidProfile()) then
+            if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and RaidProfileExists(GetActiveRaidProfile()) then
                 _CompactUnitFrameProfiles_ApplyProfile(GetActiveRaidProfile())
             else
                 for _, settingName in ipairs(
@@ -1074,7 +1086,7 @@ do
 
     local future
 
-    function CompactRaidFrameContainer_OnSizeChanged(self)
+    local function CompactRaidFrameContainer_OnSizeChanged(self)
         if future then
             future:Cancel()
         end
@@ -1089,27 +1101,45 @@ do
         )
     end
 
+    if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
+        _G.CompactRaidFrameContainer_OnSizeChanged = CompactRaidFrameContainer_OnSizeChanged
+    else
+        CompactRaidFrameContainerMixin.OnSizeChanged = CompactRaidFrameContainer_OnSizeChanged
+    end
+
     CompactRaidFrameContainer:SetScript("OnSizeChanged", CompactRaidFrameContainer_OnSizeChanged)
 end
 
 do
     local _CompactRaidFrameContainer_ReadyToUpdate = CompactRaidFrameContainer_ReadyToUpdate
 
-    function CompactRaidFrameContainer_ReadyToUpdate(self)
+    local function CompactRaidFrameContainer_ReadyToUpdate(self)
         return _CompactRaidFrameContainer_ReadyToUpdate(self) and not InCombatLockdown()
+    end
+
+    if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
+        _G.CompactRaidFrameContainer_ReadyToUpdate = CompactRaidFrameContainer_ReadyToUpdate
+    else
+        CompactRaidFrameContainerMixin.ReadyToUpdate = CompactRaidFrameContainer_ReadyToUpdate
     end
 end
 
 do
     local _CompactRaidFrameContainer_LayoutFrames = CompactRaidFrameContainer_LayoutFrames
 
-    function CompactRaidFrameContainer_LayoutFrames(self)
+    local function CompactRaidFrameContainer_LayoutFrames(self)
         self._displayPets = self.displayPets
         return _CompactRaidFrameContainer_LayoutFrames(self)
     end
+
+    if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
+        _G.CompactRaidFrameContainer_LayoutFrames = CompactRaidFrameContainer_LayoutFrames
+    else
+        CompactRaidFrameContainerMixin.LayoutFrames = CompactRaidFrameContainer_LayoutFrames
+    end
 end
 
-do
+if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
     local _CompactUnitFrameProfiles_ApplyProfile = CompactUnitFrameProfiles_ApplyProfile
 
     local future
