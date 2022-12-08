@@ -1160,6 +1160,28 @@ if WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE then
     end
 end
 
+if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+    local _CompactPartyFrame_RefreshMembers = CompactPartyFrame_RefreshMembers
+
+    local future
+
+    function CompactPartyFrame_RefreshMembers()
+        if future then
+            future:Cancel()
+        end
+
+        future =
+            continueOnGroupRosterLoadedAndNotInCombatLockdown(
+            function()
+                _CompactPartyFrame_RefreshMembers()
+
+                future = nil
+            end,
+            updateAllFrames
+        )
+    end
+end
+
 hooksecurefunc(
     "hooksecurefunc",
     function(table, functionName, hookfunc)
